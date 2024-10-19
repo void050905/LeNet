@@ -124,7 +124,7 @@ def val(dataloader, model, loss_fn):
 
 # 开始训练
 # 训练次数
-epoch = 10
+epoch = 50
 # 用于判断最佳模型
 min_acc = 0
 for t in range(epoch):
