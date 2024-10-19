@@ -8,7 +8,7 @@ import cv2
 digit_model = MyLeNet5()
 
 # 安全地加载模型权重
-weights = torch.load('/home/wangzishan/lenet/LeNet/save_model/best_model.pth')
+weights = torch.load("./save_model/best_model.pth")
 digit_model.load_state_dict(weights)  # 加载权重
 digit_model.eval()  # 设置模型为评估模式
 
@@ -27,10 +27,17 @@ def classify_image(img):
     with torch.no_grad():
         prediction = digit_model(im_tensor)
     # 获取预测结果
-    pred = torch.argmax(prediction, dim=1).item()
-    return pred
+    prediction = prediction[0]  # 调整为1维向量
+    prediction = torch.nn.functional.softmax(
+        prediction, dim=0
+    )  # 使用softmax将输出转换为0-1的概率值
+    # 构建gradio可以展现的字典
+    label_pred = {}
+    for i, p in enumerate(prediction):
+        label_pred[str(i)] = p
+    return label_pred
 
 
-label = gr.Label(num_top_classes=3)
+label = gr.Label(num_top_classes=10)
 interface = gr.Interface(fn=classify_image, inputs="sketchpad", outputs=label)
-interface.launch(share=True)
+interface.launch(server_name="0.0.0.0")
